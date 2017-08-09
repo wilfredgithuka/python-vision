@@ -31,24 +31,23 @@ def convolve(image, kernel):
 	
 		#extract the region of interest of the image by extracting the *center* region
 		# of the current (x,y) cordinates dimensions
-	
-		roi = image[y - pad:y + pad + 1, x - pad:x + pad + 1]
+			roi = image[y - pad:y + pad + 1, x - pad:x + pad + 1]
 
-		#the actual convolution
+			#the actual convolution
 		
-		k = (roi * kernel).sum()
+			k = (roi * kernel).sum()
 	
-		#store the convolved value in the output (x,y) cordiate of the output image
+			#store the convolved value in the output (x,y) cordiate of the output image
 	
-		output[y - pad, x - pad] = k
+			output[y - pad, x - pad] = k
 
-		#rescale the output image to be in the range [0, 255]
+			#rescale the output image to be in the range [0, 255]
 	
-		output = rescale_intensity(output, in_range=(0, 255))
-		output = (output * 255).astype("uint8")
+			output = rescale_intensity(output, in_range=(0, 255))
+			output = (output * 255).astype("uint8")
  
-		# return the output image
-		return output
+			# return the output image
+			return output
 
 #The Kernels
 # construct the argument parse and parse the arguments
@@ -93,3 +92,24 @@ kernelBank = (
 	("laplacian", laplacian),
 	("sobel_x", sobelX),
 	("sobel_y", sobelY)
+
+#load the input image and convert it to grayscale
+
+image = cv2.imread(args["image"])
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+ 
+# loop over the kernels
+for (kernelName, kernel) in kernelBank:
+	# apply the kernel to the grayscale image using both
+	# our custom `convole` function and OpenCV's `filter2D`
+	# function
+	print("[INFO] applying {} kernel".format(kernelName))
+	convoleOutput = convolve(gray, kernel)
+	opencvOutput = cv2.filter2D(gray, -1, kernel)
+ 
+	# show the output images
+	cv2.imshow("original", gray)
+	cv2.imshow("{} - convole".format(kernelName), convoleOutput)
+	cv2.imshow("{} - opencv".format(kernelName), opencvOutput)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
